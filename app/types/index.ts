@@ -43,4 +43,15 @@ export interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
+export interface LanguageContextType {
+  locale: string;
+  changeLanguage: (newLocale: string) => Promise<void>;
+  t: (key: string) => string;
+}
+
+export interface LanguageSelectorProps {
+  visible: boolean;
+  onClose: () => void;
+}
+
 export default {};

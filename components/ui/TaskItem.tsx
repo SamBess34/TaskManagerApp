@@ -1,13 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
+import "dayjs/locale/en";
 import "dayjs/locale/fr";
 import LocalizedFormat from "dayjs/plugin/localizedFormat";
 import React, { useEffect } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { Task } from "../../app/types";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 dayjs.extend(LocalizedFormat);
-dayjs.locale("fr");
 
 interface TaskItemProps {
   task: Task;
@@ -20,11 +21,11 @@ export default function TaskItem({
   onToggleComplete,
   onDelete,
 }: TaskItemProps) {
+  const { t, locale } = useLanguage();
+
   useEffect(() => {
-    console.log(
-      `Rendering task: ${task.id}, title: ${task.title}, due: ${task.due_date}`
-    );
-  }, [task]);
+    dayjs.locale(locale);
+  }, [locale]);
 
   const getTimeRange = () => {
     if (!task.due_date) return null;
@@ -88,11 +89,15 @@ export default function TaskItem({
             </View>
 
             <View className="flex-row items-center">
-              <Text className="text-sm text-gray-500">travail</Text>
+              <Text className="text-sm text-gray-500">
+                {locale === "fr" ? "travail" : "work"}
+              </Text>
             </View>
 
             <View className="flex-row items-center ml-auto">
-              <Text className="text-sm text-gray-500">Boîte</Text>
+              <Text className="text-sm text-gray-500">
+                {locale === "fr" ? "Boîte" : "Inbox"}
+              </Text>
               <Ionicons
                 name="mail-outline"
                 size={16}

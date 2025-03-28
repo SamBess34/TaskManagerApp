@@ -1,15 +1,16 @@
 import dayjs from "dayjs";
+import "dayjs/locale/en";
 import "dayjs/locale/fr";
 import AdvancedFormat from "dayjs/plugin/advancedFormat";
 import LocalizedFormat from "dayjs/plugin/localizedFormat";
-import React from "react";
+import React, { useEffect } from "react";
 import { FlatList, Image, SectionList, Text, View } from "react-native";
 import { Task } from "../../app/types";
+import { useLanguage } from "../../contexts/LanguageContext";
 import TaskItem from "./TaskItem";
 
 dayjs.extend(LocalizedFormat);
 dayjs.extend(AdvancedFormat);
-dayjs.locale("fr");
 
 interface TaskListProps {
   tasks: Task[];
@@ -24,8 +25,14 @@ export default function TaskList({
   onDeleteTask,
   groupByDay = false,
 }: TaskListProps) {
+  const { t, locale } = useLanguage();
+
+  useEffect(() => {
+    dayjs.locale(locale);
+  }, [locale]);
+
   const today = dayjs();
-  const formattedDate = today.format("D MMM • dddd");
+  const formattedDate = today.format(t("dateFormat"));
 
   const renderEmptyList = () => (
     <View className="flex-1 items-center justify-center p-4">
@@ -36,15 +43,13 @@ export default function TaskList({
       />
 
       <Text className="text-2xl font-bold text-gray-700 text-center mb-2">
-        Vous avez terminé toutes vos tâches ! #TodoistZero
+        {t("completedAllTasks")}
       </Text>
       <Text className="text-lg text-gray-500 text-center mb-8">
-        Profitez du reste de votre journée.
+        {t("enjoyRestOfDay")}
       </Text>
       <View className="mt-4 mb-16">
-        <Text className="text-lg text-red-500 text-center">
-          Partager #TodoistZero
-        </Text>
+        <Text className="text-lg text-red-500 text-center">{t("share")}</Text>
       </View>
     </View>
   );
@@ -77,9 +82,9 @@ export default function TaskList({
 
         let headerText;
         if (isToday) {
-          headerText = "Aujourd'hui";
+          headerText = t("today");
         } else if (isTomorrow) {
-          headerText = "Demain";
+          headerText = t("tomorrow");
         } else if (!isLater) {
           const dayName = date.format("dddd");
           const capitalizedDay =

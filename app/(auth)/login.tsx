@@ -8,21 +8,23 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useLanguage } from "../../contexts/LanguageContext";
 import { signIn } from "../../services/authService";
 
 export default function LoginScreen() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  console.log("login screen");
+
   async function handleLogin() {
     if (!email.trim()) {
-      Alert.alert("Erreur", "Veuillez entrer votre email");
+      Alert.alert("Error", t("enterEmail"));
       return;
     }
 
     if (!password) {
-      Alert.alert("Erreur", "Veuillez entrer votre mot de passe");
+      Alert.alert("Error", t("enterPassword"));
       return;
     }
 
@@ -33,8 +35,8 @@ export default function LoginScreen() {
     } catch (error: any) {
       console.error("Erreur de connexion:", error);
       Alert.alert(
-        "Échec de connexion",
-        error.message || "Une erreur s'est produite lors de la connexion"
+        t("loginError"),
+        error.message || t("defaultLoginErrorMessage")
       );
     } finally {
       setLoading(false);
@@ -43,11 +45,11 @@ export default function LoginScreen() {
 
   return (
     <View className="flex-1 justify-center p-6 bg-white">
-      <Text className="text-2xl font-bold mb-8 text-center">Connexion</Text>
+      <Text className="text-2xl font-bold mb-8 text-center">{t("login")}</Text>
 
       <TextInput
         className="p-4 border border-gray-300 rounded-lg mb-4 bg-gray-50"
-        placeholder="Email"
+        placeholder={t("email")}
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -57,7 +59,7 @@ export default function LoginScreen() {
 
       <TextInput
         className="p-4 border border-gray-300 rounded-lg mb-6 bg-gray-50"
-        placeholder="Mot de passe"
+        placeholder={t("password")}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -74,7 +76,7 @@ export default function LoginScreen() {
           <ActivityIndicator color="white" />
         ) : (
           <Text className="text-white font-semibold text-base">
-            Se connecter
+            {t("loginButton")}
           </Text>
         )}
       </TouchableOpacity>
@@ -83,7 +85,7 @@ export default function LoginScreen() {
         className="mt-6 items-center"
         onPress={() => router.push("/signup")}
       >
-        <Text className="text-blue-500">Pas encore de compte ? S'inscrire</Text>
+        <Text className="text-blue-500">{t("noAccount")}</Text>
       </TouchableOpacity>
     </View>
   );

@@ -4,13 +4,18 @@ import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import LanguageSelector from "../../components/ui/LanguageSelector";
 import { useAuth } from "../../contexts/AuthContext";
+import { useLanguage } from "../../contexts/LanguageContext";
 import { signOut } from "../../services/authService";
 
 export default function TabsLayout() {
   const { user } = useAuth();
+  const { t, locale } = useLanguage();
   const [showMenu, setShowMenu] = useState(false);
+  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
+  dayjs.locale(locale);
   const currentDay = dayjs().date();
 
   if (!user) {
@@ -40,6 +45,22 @@ export default function TabsLayout() {
         <View className="absolute top-10 right-4 bg-white rounded-lg p-2 shadow-md z-50">
           <TouchableOpacity
             className="flex-row items-center p-2"
+            onPress={() => {
+              setShowLanguageSelector(true);
+              setShowMenu(false);
+            }}
+          >
+            <Ionicons
+              name="language-outline"
+              size={20}
+              color="#333"
+              className="mr-2"
+            />
+            <Text className="text-gray-800">{t("language")}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="flex-row items-center p-2"
             onPress={handleLogout}
           >
             <Ionicons
@@ -48,7 +69,7 @@ export default function TabsLayout() {
               color="#dc4d3d"
               className="mr-2"
             />
-            <Text className="text-red-600">Déconnexion</Text>
+            <Text className="text-red-600">{t("logoutButton")}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -82,7 +103,7 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: "Today",
+            title: t("todayTab"),
             tabBarIcon: ({ color, focused }) => (
               <View className="items-center justify-center">
                 <View
@@ -102,7 +123,7 @@ export default function TabsLayout() {
             ),
             tabBarLabel: ({ color }) => (
               <Text className="text-xs mt-1 font-bold" style={{ color }}>
-                Today
+                {t("todayTab")}
               </Text>
             ),
           }}
@@ -110,7 +131,7 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="upcoming"
           options={{
-            title: "Upcoming",
+            title: t("upcoming"),
             tabBarIcon: ({ color, focused }) => (
               <View className="items-center justify-center pt-1">
                 <Ionicons
@@ -122,7 +143,7 @@ export default function TabsLayout() {
             ),
             tabBarLabel: ({ color }) => (
               <Text className="text-xs mt-1" style={{ color }}>
-                Upcoming
+                {t("upcoming")}
               </Text>
             ),
           }}
@@ -130,7 +151,7 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="search"
           options={{
-            title: "Search",
+            title: t("search"),
             tabBarIcon: ({ color, focused }) => (
               <View className="items-center justify-center pt-1">
                 <Ionicons
@@ -142,7 +163,7 @@ export default function TabsLayout() {
             ),
             tabBarLabel: ({ color }) => (
               <Text className="text-xs mt-1" style={{ color }}>
-                Search
+                {t("search")}
               </Text>
             ),
           }}
@@ -150,7 +171,7 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="browse"
           options={{
-            title: "Browse",
+            title: t("browse"),
             tabBarIcon: ({ color, focused }) => (
               <View className="items-center justify-center pt-1">
                 <Ionicons
@@ -162,12 +183,17 @@ export default function TabsLayout() {
             ),
             tabBarLabel: ({ color }) => (
               <Text className="text-xs mt-1" style={{ color }}>
-                Browse
+                {t("browse")}
               </Text>
             ),
           }}
         />
       </Tabs>
+
+      <LanguageSelector
+        visible={showLanguageSelector}
+        onClose={() => setShowLanguageSelector(false)}
+      />
     </>
   );
 }

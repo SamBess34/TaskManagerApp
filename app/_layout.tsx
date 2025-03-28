@@ -4,6 +4,7 @@ import { Slot, SplashScreen } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { AuthProvider } from "../contexts/AuthContext";
+import { LanguageProvider } from "../contexts/LanguageContext";
 import "../global.css";
 
 SplashScreen.preventAutoHideAsync();
@@ -36,11 +37,13 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={LightTheme}>
-      <AuthProvider>
-        <Slot />
-        <StatusBar style="dark" backgroundColor="white" />
-      </AuthProvider>
-    </ThemeProvider>
+    <LanguageProvider>
+      <ThemeProvider value={LightTheme}>
+        <AuthProvider>
+          <Slot />
+          <StatusBar style="dark" backgroundColor="white" />
+        </AuthProvider>
+      </ThemeProvider>
+    </LanguageProvider>
   );
 }

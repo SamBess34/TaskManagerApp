@@ -8,9 +8,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useLanguage } from "../../contexts/LanguageContext";
 import { signUp } from "../../services/authService";
 
 export default function SignupScreen() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -18,25 +20,22 @@ export default function SignupScreen() {
 
   async function handleSignup() {
     if (!email.trim()) {
-      Alert.alert("Erreur", "Veuillez entrer un email");
+      Alert.alert("Error", t("enterEmail"));
       return;
     }
 
     if (!password) {
-      Alert.alert("Erreur", "Veuillez entrer un mot de passe");
+      Alert.alert("Error", t("enterPassword"));
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert(
-        "Erreur",
-        "Le mot de passe doit contenir au moins 6 caractères"
-      );
+      Alert.alert("Error", t("passwordTooShort"));
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert("Erreur", "Les mots de passe ne correspondent pas");
+      Alert.alert("Error", t("passwordsNotMatch"));
       return;
     }
 
@@ -44,16 +43,14 @@ export default function SignupScreen() {
       setLoading(true);
       await signUp(email.trim(), password);
 
-      Alert.alert(
-        "Compte créé",
-        "Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.",
-        [{ text: "OK", onPress: () => router.replace("/login") }]
-      );
+      Alert.alert(t("accountCreated"), t("accountCreatedMessage"), [
+        { text: t("ok"), onPress: () => router.replace("/login") },
+      ]);
     } catch (error: any) {
       console.error("Erreur d'inscription:", error);
       Alert.alert(
-        "Échec de l'inscription",
-        error.message || "Une erreur s'est produite lors de l'inscription"
+        t("signupError"),
+        error.message || t("defaultSignupErrorMessage")
       );
     } finally {
       setLoading(false);
@@ -62,13 +59,11 @@ export default function SignupScreen() {
 
   return (
     <View className="flex-1 justify-center p-6 bg-white">
-      <Text className="text-2xl font-bold mb-8 text-center">
-        Créer un compte
-      </Text>
+      <Text className="text-2xl font-bold mb-8 text-center">{t("signup")}</Text>
 
       <TextInput
         className="p-4 border border-gray-300 rounded-lg mb-4 bg-gray-50"
-        placeholder="Email"
+        placeholder={t("email")}
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -78,7 +73,7 @@ export default function SignupScreen() {
 
       <TextInput
         className="p-4 border border-gray-300 rounded-lg mb-4 bg-gray-50"
-        placeholder="Mot de passe"
+        placeholder={t("password")}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -86,7 +81,7 @@ export default function SignupScreen() {
 
       <TextInput
         className="p-4 border border-gray-300 rounded-lg mb-6 bg-gray-50"
-        placeholder="Confirmer le mot de passe"
+        placeholder={t("confirmPassword")}
         value={confirmPassword}
         onChangeText={setConfirmPassword}
         secureTextEntry
@@ -102,7 +97,9 @@ export default function SignupScreen() {
         {loading ? (
           <ActivityIndicator color="white" />
         ) : (
-          <Text className="text-white font-semibold text-base">S'inscrire</Text>
+          <Text className="text-white font-semibold text-base">
+            {t("signupButton")}
+          </Text>
         )}
       </TouchableOpacity>
 
@@ -110,7 +107,7 @@ export default function SignupScreen() {
         className="mt-6 items-center"
         onPress={() => router.push("/login")}
       >
-        <Text className="text-blue-500">Déjà un compte ? Se connecter</Text>
+        <Text className="text-blue-500">{t("alreadyAccount")}</Text>
       </TouchableOpacity>
     </View>
   );

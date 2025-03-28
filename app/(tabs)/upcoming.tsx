@@ -1,4 +1,3 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
@@ -16,6 +15,7 @@ import {
 import { Task } from "../../app/types";
 import EmptyState from "../../components/ui/EmptyState";
 import TaskList from "../../components/ui/TaskList";
+import { useLanguage } from "../../contexts/LanguageContext";
 import { deleteTask, getTasks, updateTask } from "../../services/taskService";
 
 dayjs.extend(isBetween);
@@ -24,10 +24,10 @@ export default function UpcomingScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { t, locale } = useLanguage();
 
   const fetchUpcomingTasks = useCallback(async () => {
     try {
-      console.log("Fetching upcoming tasks...");
       setLoading(true);
 
       const { data, error } = await getTasks();
@@ -41,24 +41,12 @@ export default function UpcomingScreen() {
         return;
       }
 
-      console.log(`Total tasks fetched: ${data.length}`);
-
       const today = dayjs().endOf("day");
       const upcomingTasks = data.filter((task) => {
         if (!task.due_date) return false;
 
         const taskDate = dayjs(task.due_date);
         return taskDate.isAfter(today);
-      });
-
-      console.log(`Upcoming tasks after filtering: ${upcomingTasks.length}`);
-
-      upcomingTasks.forEach((task) => {
-        console.log(
-          `Task: ${task.id}, ${task.title}, Date: ${
-            task.due_date
-          }, Formaté: ${dayjs(task.due_date).format("YYYY-MM-DD HH:mm")}`
-        );
       });
 
       upcomingTasks.sort((a, b) => {
@@ -70,21 +58,22 @@ export default function UpcomingScreen() {
       setTasks(upcomingTasks);
     } catch (err) {
       console.error("Error in fetchUpcomingTasks:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch upcoming tasks"
-      );
+      setError(err instanceof Error ? err.message : t("failedFetchTasks"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
+
+  useEffect(() => {
+    dayjs.locale(locale);
+  }, [locale]);
 
   useEffect(() => {
     fetchUpcomingTasks();
-  }, []);
+  }, [fetchUpcomingTasks]);
 
   useFocusEffect(
     useCallback(() => {
-      console.log("Upcoming screen focused - refreshing tasks");
       fetchUpcomingTasks();
     }, [fetchUpcomingTasks])
   );
@@ -94,9 +83,6 @@ export default function UpcomingScreen() {
       "change",
       (nextAppState: AppStateStatus) => {
         if (nextAppState === "active") {
-          console.log(
-            "App has come to the foreground - refreshing upcoming tasks"
-          );
           fetchUpcomingTasks();
         }
       }
@@ -126,7 +112,7 @@ export default function UpcomingScreen() {
         )
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update task");
+      setError(err instanceof Error ? err.message : t("failedUpdateTask"));
     }
   };
 
@@ -140,7 +126,7 @@ export default function UpcomingScreen() {
 
       setTasks(tasks.filter((task) => task.id !== id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete task");
+      setError(err instanceof Error ? err.message : t("failedDeleteTask"));
     }
   };
 
@@ -149,15 +135,8 @@ export default function UpcomingScreen() {
       <StatusBar style="dark" />
 
       <View className="px-6 py-4">
-        <Text className="text-4xl font-bold text-black">À venir</Text>
+        <Text className="text-4xl font-bold text-black">{t("upcoming")}</Text>
       </View>
-
-      <TouchableOpacity
-        className="absolute top-4 right-6 p-2 rounded-full bg-gray-100"
-        onPress={fetchUpcomingTasks}
-      >
-        <Ionicons name="refresh" size={20} color="#dc4d3d" />
-      </TouchableOpacity>
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
@@ -170,13 +149,13 @@ export default function UpcomingScreen() {
             className="mt-4 bg-red-500 px-4 py-2 rounded-lg"
             onPress={fetchUpcomingTasks}
           >
-            <Text className="text-white">Réessayer</Text>
+            <Text className="text-white">{t("retry")}</Text>
           </TouchableOpacity>
         </View>
       ) : tasks.length === 0 ? (
         <EmptyState
-          message="Aucune tâche à venir!"
-          subMessage="Toutes vos tâches futures apparaîtront ici."
+          message={t("noUpcomingTasks")}
+          subMessage={t("upcomingTasksWillAppearHere")}
         />
       ) : (
         <TaskList

@@ -1,4 +1,3 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import dayjs from "dayjs";
 import { StatusBar } from "expo-status-bar";
@@ -15,6 +14,7 @@ import {
 import TaskForm from "../../components/ui/TaskForm";
 import TaskList from "../../components/ui/TaskList";
 import { useAuth } from "../../contexts/AuthContext";
+import { useLanguage } from "../../contexts/LanguageContext";
 import {
   addTask,
   deleteTask,
@@ -29,10 +29,10 @@ export default function HomeScreen() {
   const [error, setError] = useState<string | null>(null);
   const [isTaskFormVisible, setIsTaskFormVisible] = useState(false);
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const fetchTodayTasks = useCallback(async () => {
     try {
-      console.log("Fetching today's tasks...");
       setLoading(true);
 
       const { data, error } = await getTasksByDueDate("today");
@@ -53,32 +53,23 @@ export default function HomeScreen() {
           const taskDate = dayjs(task.due_date);
           return taskDate.isBetween(today, tomorrow, null, "[)");
         });
-
-        console.log(`Found ${todayTasks.length} tasks for today`);
-
-        todayTasks.forEach((task) => {
-          console.log(
-            `Task in today: ${task.id}, ${task.title}, due: ${task.due_date}`
-          );
-        });
       }
 
       setTasks(todayTasks);
     } catch (err) {
       console.error("Error fetching tasks:", err);
-      setError(err instanceof Error ? err.message : "Failed to fetch tasks");
+      setError(err instanceof Error ? err.message : t("failedFetchTasks"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchTodayTasks();
-  }, []);
+  }, [fetchTodayTasks]);
 
   useFocusEffect(
     useCallback(() => {
-      console.log("Home screen focused - refreshing tasks");
       fetchTodayTasks();
     }, [fetchTodayTasks])
   );
@@ -88,7 +79,6 @@ export default function HomeScreen() {
       "change",
       (nextAppState: AppStateStatus) => {
         if (nextAppState === "active") {
-          console.log("App has come to the foreground - refreshing tasks");
           fetchTodayTasks();
         }
       }
@@ -105,8 +95,6 @@ export default function HomeScreen() {
     dueDate?: Date
   ) => {
     try {
-      console.log("Adding task:", { title, description, dueDate });
-
       const taskDueDate = dueDate || new Date();
 
       const newTask = {
@@ -123,14 +111,12 @@ export default function HomeScreen() {
         throw new Error(error.message);
       }
 
-      console.log("Task added successfully:", data);
-
       fetchTodayTasks();
 
       setIsTaskFormVisible(false);
     } catch (err) {
       console.error("Error adding task:", err);
-      setError(err instanceof Error ? err.message : "Failed to add task");
+      setError(err instanceof Error ? err.message : t("failedAddTask"));
     }
   };
 
@@ -144,7 +130,7 @@ export default function HomeScreen() {
 
       setTasks(tasks.filter((task) => task.id !== id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete task");
+      setError(err instanceof Error ? err.message : t("failedDeleteTask"));
     }
   };
 
@@ -167,7 +153,7 @@ export default function HomeScreen() {
         )
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update task");
+      setError(err instanceof Error ? err.message : t("failedUpdateTask"));
     }
   };
 
@@ -177,7 +163,7 @@ export default function HomeScreen() {
 
       <View className="flex-1">
         <View className="px-6 pt-4 pb-2">
-          <Text className="text-4xl font-bold text-black">Today</Text>
+          <Text className="text-4xl font-bold text-black">{t("todayTab")}</Text>
         </View>
 
         {loading ? (
@@ -191,7 +177,7 @@ export default function HomeScreen() {
               className="mt-4 bg-red-500 px-4 py-2 rounded-lg"
               onPress={fetchTodayTasks}
             >
-              <Text className="text-white">Réessayer</Text>
+              <Text className="text-white">{t("retry")}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -202,13 +188,6 @@ export default function HomeScreen() {
           />
         )}
       </View>
-
-      <TouchableOpacity
-        className="absolute top-4 right-6 p-2 rounded-full bg-gray-100"
-        onPress={fetchTodayTasks}
-      >
-        <Ionicons name="refresh" size={20} color="#dc4d3d" />
-      </TouchableOpacity>
 
       <TaskForm
         visible={isTaskFormVisible}

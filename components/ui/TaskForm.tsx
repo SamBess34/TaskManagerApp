@@ -7,13 +7,13 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 interface TaskFormProps {
   visible: boolean;
@@ -30,6 +30,7 @@ export default function TaskForm({
   onClose,
   onAddTask,
 }: TaskFormProps) {
+  const { t, locale } = useLanguage();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -54,13 +55,12 @@ export default function TaskForm({
 
   const handleSubmit = async () => {
     if (!title.trim()) {
-      Alert.alert("Error", "Please enter a task title");
+      Alert.alert("Error", t("enterTaskTitle"));
       return;
     }
 
     try {
       setLoading(true);
-      console.log("Submitting task with:", { title, description, dueDate });
 
       await onAddTask(
         title.trim(),
@@ -69,7 +69,7 @@ export default function TaskForm({
       );
     } catch (error) {
       console.error("Error adding task:", error);
-      Alert.alert("Error", "Failed to add task");
+      Alert.alert("Error", t("failedAddTask"));
       setLoading(false);
     }
   };
@@ -115,19 +115,22 @@ export default function TaskForm({
         hour: "2-digit",
         minute: "2-digit",
       };
-      return dueDate.toLocaleString("fr-FR", options);
+      return dueDate.toLocaleString(
+        locale === "fr" ? "fr-FR" : "en-US",
+        options
+      );
     }
-    return "Today";
+    return t("today");
   };
 
   const renderIOSDatePicker = () => {
     if (!showDatePicker) return null;
 
     return (
-      <View style={styles.iosPickerContainer}>
-        <View style={styles.iosPickerHeader}>
+      <View className="absolute bottom-0 left-0 right-0 bg-white z-50 border-t border-gray-200">
+        <View className="flex-row justify-between p-3 border-b border-gray-200">
           <TouchableOpacity onPress={() => setShowDatePicker(false)}>
-            <Text style={styles.iosPickerCancel}>Annuler</Text>
+            <Text className="text-blue-500 text-base">{t("cancel")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
@@ -137,7 +140,7 @@ export default function TaskForm({
               }
             }}
           >
-            <Text style={styles.iosPickerDone}>OK</Text>
+            <Text className="text-blue-500 font-bold text-base">{t("ok")}</Text>
           </TouchableOpacity>
         </View>
         <DateTimePicker
@@ -145,8 +148,8 @@ export default function TaskForm({
           mode="date"
           display="spinner"
           onChange={handleDateChange}
-          style={styles.iosPicker}
-          locale="fr-FR"
+          className="h-56"
+          locale={locale === "fr" ? "fr-FR" : "en-US"}
         />
       </View>
     );
@@ -156,13 +159,13 @@ export default function TaskForm({
     if (!showTimePicker) return null;
 
     return (
-      <View style={styles.iosPickerContainer}>
-        <View style={styles.iosPickerHeader}>
+      <View className="absolute bottom-0 left-0 right-0 bg-white z-50 border-t border-gray-200">
+        <View className="flex-row justify-between p-3 border-b border-gray-200">
           <TouchableOpacity onPress={() => setShowTimePicker(false)}>
-            <Text style={styles.iosPickerCancel}>Annuler</Text>
+            <Text className="text-blue-500 text-base">{t("cancel")}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setShowTimePicker(false)}>
-            <Text style={styles.iosPickerDone}>OK</Text>
+            <Text className="text-blue-500 font-bold text-base">{t("ok")}</Text>
           </TouchableOpacity>
         </View>
         <DateTimePicker
@@ -170,8 +173,8 @@ export default function TaskForm({
           mode="time"
           display="spinner"
           onChange={handleTimeChange}
-          style={styles.iosPicker}
-          locale="fr-FR"
+          className="h-56"
+          locale={locale === "fr" ? "fr-FR" : "en-US"}
         />
       </View>
     );
@@ -199,7 +202,7 @@ export default function TaskForm({
                 <View className="px-6">
                   <TextInput
                     className="text-2xl font-normal text-black mb-4 pb-2 border-b border-gray-200"
-                    placeholder="Ex: Étudier le français tous les jours"
+                    placeholder={t("taskTitlePlaceholder")}
                     placeholderTextColor="#999"
                     value={title}
                     onChangeText={setTitle}
@@ -208,7 +211,7 @@ export default function TaskForm({
 
                   <TextInput
                     className="text-lg text-gray-600 mb-6"
-                    placeholder="Description"
+                    placeholder={t("descriptionPlaceholder")}
                     placeholderTextColor="#999"
                     value={description}
                     onChangeText={setDescription}
@@ -231,17 +234,10 @@ export default function TaskForm({
                       </Text>
                     </TouchableOpacity>
 
-                    {/* <TouchableOpacity className="flex-row items-center bg-gray-100 px-4 py-3 rounded-xl border border-gray-200 mb-2">
-                      <Ionicons name="flag-outline" size={20} color="gray" />
-                      <Text className="ml-2 text-gray-800 font-medium">
-                        Priority
-                      </Text>
-                    </TouchableOpacity> */}
-
                     <TouchableOpacity className="flex-row items-center bg-gray-100 px-4 py-3 rounded-xl border border-gray-200 mb-2">
                       <Ionicons name="alarm-outline" size={20} color="gray" />
                       <Text className="ml-2 text-gray-800 font-medium">
-                        Reminder
+                        {t("reminder")}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -249,12 +245,12 @@ export default function TaskForm({
                   <View className="flex-row items-center justify-between mb-4">
                     <TouchableOpacity className="flex-row items-center">
                       <Ionicons name="folder-outline" size={20} color="gray" />
-                      <Text className="ml-2 text-gray-800">Inbox</Text>
+                      <Text className="ml-2 text-gray-800">{t("inbox")}</Text>
                       <Ionicons
                         name="chevron-down"
                         size={16}
                         color="gray"
-                        style={{ marginLeft: 4 }}
+                        className="ml-1"
                       />
                     </TouchableOpacity>
 
@@ -266,7 +262,7 @@ export default function TaskForm({
                       activeOpacity={0.7}
                     >
                       <Text className="text-white font-semibold">
-                        {loading ? "Ajout en cours..." : "Ajouter"}
+                        {loading ? t("addingTask") : t("add")}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -290,7 +286,7 @@ export default function TaskForm({
               mode="date"
               display="default"
               onChange={handleDateChange}
-              locale="fr-FR"
+              locale={locale === "fr" ? "fr-FR" : "en-US"}
             />
           )}
 
@@ -300,7 +296,7 @@ export default function TaskForm({
               mode="time"
               display="default"
               onChange={handleTimeChange}
-              locale="fr-FR"
+              locale={locale === "fr" ? "fr-FR" : "en-US"}
             />
           )}
         </>
@@ -308,35 +304,3 @@ export default function TaskForm({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  iosPickerContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "white",
-    zIndex: 1000,
-    borderTopWidth: 1,
-    borderColor: "#E5E5E5",
-  },
-  iosPickerHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 12,
-    borderBottomWidth: 1,
-    borderColor: "#E5E5E5",
-  },
-  iosPickerCancel: {
-    color: "#007AFF",
-    fontSize: 16,
-  },
-  iosPickerDone: {
-    color: "#007AFF",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  iosPicker: {
-    height: 216,
-  },
-});
