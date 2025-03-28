@@ -1,33 +1,116 @@
-import { Ionicons } from '@expo/vector-icons';
-import { Text, TouchableOpacity, View } from 'react-native';
-import { Task } from '../../app/types';
+import { Ionicons } from "@expo/vector-icons";
+import dayjs from "dayjs";
+import "dayjs/locale/fr";
+import LocalizedFormat from "dayjs/plugin/localizedFormat";
+import React, { useEffect } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import { Task } from "../../app/types";
+
+dayjs.extend(LocalizedFormat);
+dayjs.locale("fr");
 
 interface TaskItemProps {
   task: Task;
-  onToggleComplete: (id: string) => void;
+  onToggleComplete: () => void;
+  onDelete: () => void;
 }
 
-export default function TaskItem({ task, onToggleComplete }: TaskItemProps) {
+export default function TaskItem({
+  task,
+  onToggleComplete,
+  onDelete,
+}: TaskItemProps) {
+  useEffect(() => {
+    console.log(
+      `Rendering task: ${task.id}, title: ${task.title}, due: ${task.due_date}`
+    );
+  }, [task]);
+
+  const getTimeRange = () => {
+    if (!task.due_date) return null;
+
+    try {
+      const startTime = dayjs(task.due_date);
+      //const endTime = startTime.add(90, "minute");
+      // return `${startTime.format("HH:mm")}-${endTime.format("HH:mm")}`;
+      return `${startTime.format("HH:mm")}`;
+    } catch (error) {
+      console.error("Error formatting time range:", error);
+      return null;
+    }
+  };
+
   return (
-    <View className="flex-row items-center p-4 bg-white rounded-lg mb-2 shadow-sm">
-      <TouchableOpacity 
-        onPress={() => onToggleComplete(task.id)}
-        className="mr-3"
+    <View className="flex-row items-start mb-5 px-6">
+      <TouchableOpacity
+        className="mt-1 mr-4"
+        onPress={onToggleComplete}
+        hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
       >
-        <View className={`w-6 h-6 rounded-full border-2 ${task.isCompleted ? 'bg-blue-500 border-blue-500' : 'border-gray-300'} flex items-center justify-center`}>
-          {task.isCompleted && <Ionicons name="checkmark" size={16} color="white" />}
+        <View
+          className={`w-5 h-5 rounded-full border-2 items-center justify-center ${
+            task.is_completed ? "bg-red-500 border-red-500" : "border-red-500"
+          }`}
+        >
+          {task.is_completed && (
+            <Ionicons name="checkmark" size={18} color="white" />
+          )}
         </View>
       </TouchableOpacity>
-      
-      <Text className={`flex-1 text-base ${task.isCompleted ? 'text-gray-400 line-through' : 'text-gray-800'}`}>
-        {task.title}
-      </Text>
-      
-      {task.dueDate && (
-        <Text className="text-xs text-gray-500">
-          {new Date(task.dueDate).toLocaleDateString()}
+
+      <View className="flex-1">
+        <Text
+          className={`text-lg font-medium ${
+            task.is_completed ? "text-gray-400 line-through" : "text-gray-800"
+          }`}
+        >
+          {task.title}
         </Text>
-      )}
+
+        {task.description && (
+          <Text
+            className={`text-base mt-1 ${
+              task.is_completed ? "text-gray-400" : "text-gray-500"
+            }`}
+            numberOfLines={2}
+          >
+            {task.description}
+          </Text>
+        )}
+
+        {task.due_date && (
+          <View className="flex-row mt-2 items-center">
+            <View className="flex-row items-center bg-gray-100 px-2 py-1 rounded-md mr-2">
+              <Ionicons name="calendar-outline" size={16} color="green" />
+              <Text className="ml-1 text-sm text-gray-700">
+                {getTimeRange()}
+              </Text>
+            </View>
+
+            <View className="flex-row items-center">
+              <Text className="text-sm text-gray-500">travail</Text>
+            </View>
+
+            <View className="flex-row items-center ml-auto">
+              <Text className="text-sm text-gray-500">Boîte</Text>
+              <Ionicons
+                name="mail-outline"
+                size={16}
+                color="gray"
+                className="ml-1"
+              />
+            </View>
+          </View>
+        )}
+      </View>
+
+      <TouchableOpacity
+        onPress={onDelete}
+        hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
+        className="ml-2 mt-1"
+      >
+        <Ionicons name="trash-outline" size={20} color="#dc4d3d" />
+      </TouchableOpacity>
     </View>
   );
 }

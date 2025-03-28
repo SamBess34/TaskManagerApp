@@ -1,19 +1,33 @@
-import React from 'react';
-import { Image, Text, View } from 'react-native';
+import React from "react";
+import { Image, Text, View } from "react-native";
 
 interface EmptyStateProps {
-  message?: string;
+  message: string;
+  subMessage?: string;
 }
 
-export default function EmptyState({ message = "No tasks yet! Add your first task to get started." }: EmptyStateProps) {
+const EmptyState: React.FC<EmptyStateProps> = ({ message, subMessage }) => {
   return (
-    <View className="flex-1 items-center justify-center p-6">
-      <Image 
-        source={require('../../assets/images/empty-state.jpg')}
-        className="w-40 h-40 mb-4"
-        resizeMode="contain"
-      />
-      <Text className="text-gray-500 text-center text-lg">{message}</Text>
+    <View className="flex-1 items-center justify-center px-6">
+      <View className="mb-8 items-center">
+        <Image
+          source={require("../../assets/images/soon.jpg")}
+          className="w-64 h-64"
+          resizeMode="contain"
+        />
+      </View>
+
+      <Text className="text-xl font-bold text-gray-800 text-center mb-2">
+        {message}
+      </Text>
+
+      {subMessage && (
+        <Text className="text-base text-gray-600 text-center mb-8">
+          {subMessage}
+        </Text>
+      )}
     </View>
   );
-}
+};
+
+export default EmptyState;
