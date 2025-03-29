@@ -196,7 +196,7 @@ export default function HomeScreen() {
       />
 
       <TouchableOpacity
-        className="absolute bottom-20 right-6 w-16 h-16 rounded-full items-center justify-center shadow-lg"
+        className="absolute bottom-20 right-6 bottom-7 w-16 h-16 rounded-full items-center justify-center shadow-lg"
         style={{ backgroundColor: "#dc4d3d" }}
         onPress={() => setIsTaskFormVisible(true)}
       >

@@ -14,9 +14,16 @@ import {
 } from "react-native";
 import { Task } from "../../app/types";
 import EmptyState from "../../components/ui/EmptyState";
+import TaskForm from "../../components/ui/TaskForm";
 import TaskList from "../../components/ui/TaskList";
+import { useAuth } from "../../contexts/AuthContext";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { deleteTask, getTasks, updateTask } from "../../services/taskService";
+import {
+  addTask,
+  deleteTask,
+  getTasks,
+  updateTask,
+} from "../../services/taskService";
 
 dayjs.extend(isBetween);
 
@@ -24,6 +31,8 @@ export default function UpcomingScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isTaskFormVisible, setIsTaskFormVisible] = useState(false);
+  const { user } = useAuth();
   const { t, locale } = useLanguage();
 
   const fetchUpcomingTasks = useCallback(async () => {
@@ -92,6 +101,36 @@ export default function UpcomingScreen() {
       subscription.remove();
     };
   }, [fetchUpcomingTasks]);
+
+  const handleAddTask = async (
+    title: string,
+    description?: string,
+    dueDate?: Date
+  ) => {
+    try {
+      const taskDueDate = dueDate || dayjs().add(1, "day").toDate();
+
+      const newTask = {
+        title,
+        description,
+        is_completed: false,
+        user_id: user?.id || "",
+        due_date: taskDueDate.toISOString(),
+      };
+
+      const { data, error } = await addTask(newTask);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      fetchUpcomingTasks();
+      setIsTaskFormVisible(false);
+    } catch (err) {
+      console.error("Error adding task:", err);
+      setError(err instanceof Error ? err.message : t("failedAddTask"));
+    }
+  };
 
   const handleToggleComplete = async (id: string) => {
     try {
@@ -165,6 +204,20 @@ export default function UpcomingScreen() {
           groupByDay={true}
         />
       )}
+
+      <TaskForm
+        visible={isTaskFormVisible}
+        onClose={() => setIsTaskFormVisible(false)}
+        onAddTask={handleAddTask}
+      />
+
+      <TouchableOpacity
+        className="absolute bottom-20 right-6 bottom-7 w-16 h-16 rounded-full items-center justify-center shadow-lg"
+        style={{ backgroundColor: "#dc4d3d" }}
+        onPress={() => setIsTaskFormVisible(true)}
+      >
+        <Text className="text-white text-3xl font-bold">+</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
