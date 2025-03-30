@@ -38,7 +38,11 @@ export default function TabsLayout() {
         className="px-4 py-2"
         onPress={() => setShowMenu(!showMenu)}
       >
-        <Ionicons name="ellipsis-horizontal" size={24} color="#000" />
+        <Ionicons
+          name="ellipsis-horizontal-outline"
+          size={30}
+          color="#dc4d3d"
+        />
       </TouchableOpacity>
 
       {showMenu && (
