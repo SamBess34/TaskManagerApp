@@ -2,6 +2,7 @@ import { Task } from "../app/types";
 import { getCurrentUser } from "./authService";
 import { supabase } from "./supabaseClient";
 
+// fetch all tasks for the connected user
 export async function getTasks() {
   try {
     const user = await getCurrentUser();
@@ -24,6 +25,7 @@ export async function getTasks() {
   }
 }
 
+// retrieve tasks filtered by due date (today, week, or all)
 export async function getTasksByDueDate(
   filter: "today" | "week" | "all" = "all"
 ) {
@@ -66,6 +68,7 @@ export async function getTasksByDueDate(
   }
 }
 
+// create a new task
 export async function addTask(
   task: Omit<Task, "id" | "created_at" | "updated_at">
 ) {
@@ -94,6 +97,7 @@ export async function addTask(
   }
 }
 
+// update an existing task
 export async function updateTask(id: string, updates: Partial<Task>) {
   try {
     const { data, error } = await supabase
@@ -110,6 +114,7 @@ export async function updateTask(id: string, updates: Partial<Task>) {
   }
 }
 
+// remove a task
 export async function deleteTask(id: string) {
   try {
     const { error } = await supabase.from("tasks").delete().eq("id", id);

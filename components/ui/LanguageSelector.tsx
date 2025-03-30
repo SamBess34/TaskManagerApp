@@ -1,4 +1,3 @@
-// src/components/ui/LanguageSelector.tsx
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
@@ -11,10 +10,12 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 }) => {
   const { locale, changeLanguage, t } = useLanguage() as LanguageContextType;
 
+  // handle language selection
   const handleSelectLanguage = async (newLocale: string) => {
     await changeLanguage(newLocale);
     onClose();
   };
+
   return (
     <Modal
       animationType="slide"

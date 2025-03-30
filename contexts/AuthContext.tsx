@@ -34,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
+    // loads user and session data
     async function loadUserAndSession() {
       try {
         if (!mounted) return;
@@ -54,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
+    // set up auth state change listener
     const { data: authListener } = onAuthStateChange((session, user) => {
       if (mounted) {
         setSession(session);
@@ -64,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     loadUserAndSession();
 
+    // cleanup function to prevent memory leaks and remove listeners
     return () => {
       mounted = false;
       authListener.subscription.unsubscribe();

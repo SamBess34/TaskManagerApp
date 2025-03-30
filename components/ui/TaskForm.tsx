@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Keyboard,
   KeyboardAvoidingView,
@@ -35,6 +36,7 @@ export default function TaskForm({
     }
   }, [visible]);
 
+  // reset all form fields
   const resetForm = () => {
     setTitle("");
     setDescription("");
@@ -44,6 +46,7 @@ export default function TaskForm({
     setShowTimePicker(false);
   };
 
+  // handle task submission and validation
   const handleSubmit = async () => {
     if (!title.trim()) {
       Alert.alert("Error", t("enterTaskTitle"));
@@ -65,6 +68,7 @@ export default function TaskForm({
     }
   };
 
+  // handle date selection and updates the due date
   const handleDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
 
@@ -85,6 +89,7 @@ export default function TaskForm({
     }
   };
 
+  // handle time selection and updates the due date with selected time
   const handleTimeChange = (event: any, selectedTime?: Date) => {
     setShowTimePicker(false);
 
@@ -97,6 +102,7 @@ export default function TaskForm({
     }
   };
 
+  // format the due date for display based on locale
   const getDateButtonText = () => {
     if (dueDate) {
       const options: Intl.DateTimeFormatOptions = {
@@ -114,6 +120,7 @@ export default function TaskForm({
     return t("today");
   };
 
+  // render iOS specific date picker with custom controls
   const renderIOSDatePicker = () => {
     if (!showDatePicker) return null;
 
@@ -146,6 +153,7 @@ export default function TaskForm({
     );
   };
 
+  // render iOS specific time picker with custom controls
   const renderIOSTimePicker = () => {
     if (!showTimePicker) return null;
 
@@ -253,15 +261,21 @@ export default function TaskForm({
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    className="bg-red-500 px-6 py-2 rounded-lg shadow-sm"
-                    style={{ backgroundColor: "#dc4d3d" }}
+                    className="bg-red-500 p-3 rounded-full shadow-sm flex items-center justify-center"
+                    style={{
+                      backgroundColor: "#dc4d3d",
+                      width: 45,
+                      height: 45,
+                    }}
                     onPress={handleSubmit}
                     disabled={loading || !title.trim()}
                     activeOpacity={0.7}
                   >
-                    <Text className="text-white font-semibold">
-                      {loading ? t("addingTask") : t("add")}
-                    </Text>
+                    {loading ? (
+                      <ActivityIndicator size="small" color="#ffffff" />
+                    ) : (
+                      <Ionicons name="send" size={20} color="#ffffff" />
+                    )}
                   </TouchableOpacity>
                 </View>
               </View>

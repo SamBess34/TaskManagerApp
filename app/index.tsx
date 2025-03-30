@@ -12,7 +12,7 @@ export default function Index() {
     );
   }
 
-  // if the user is connect
+  // if the user is connected
   if (user) {
     return <Redirect href="/(tabs)" />;
   }

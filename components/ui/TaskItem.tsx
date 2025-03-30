@@ -17,10 +17,12 @@ export default function TaskItem({
 }: TaskItemProps) {
   const { t, locale } = useLanguage();
 
+  // update dayjs locale when app language changes
   useEffect(() => {
     dayjs.locale(locale);
   }, [locale]);
 
+  // format the time based on user's locale settings
   const getTimeRange = () => {
     if (!task.due_date) return null;
 

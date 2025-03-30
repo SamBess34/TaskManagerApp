@@ -20,6 +20,7 @@ export default function TaskList({
 }: TaskListProps) {
   const { t, locale } = useLanguage();
 
+  // updat dayjs locale when app language changes
   useEffect(() => {
     dayjs.locale(locale);
   }, [locale]);
@@ -27,6 +28,7 @@ export default function TaskList({
   const today = dayjs();
   const formattedDate = today.format(t("dateFormat"));
 
+  // render empty state when there are no tasks
   const renderEmptyList = () => (
     <View className="flex-1 items-center justify-center p-4">
       <Image
@@ -47,12 +49,14 @@ export default function TaskList({
     </View>
   );
 
+  // header component showing current date
   const ListHeader = () => (
     <View className="mb-4 mt-2">
       <Text className="text-base text-gray-500 ml-6">{formattedDate}</Text>
     </View>
   );
 
+  // group tasks by date
   const prepareSections = () => {
     const groupedTasks: { [key: string]: Task[] } = {};
 
@@ -96,6 +100,7 @@ export default function TaskList({
       .sort((a, b) => (a.dateKey > b.dateKey ? 1 : -1));
   };
 
+  // render section headers with date information
   const renderSectionHeader = ({ section }: { section: { title: string } }) => (
     <View className="bg-gray-100 py-2 px-6 mb-2">
       <Text className="text-base font-medium text-gray-800">

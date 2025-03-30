@@ -5,8 +5,6 @@ import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  AppState,
-  AppStateStatus,
   SafeAreaView,
   Text,
   TouchableOpacity,
@@ -19,11 +17,13 @@ import TaskList from "../../components/ui/TaskList";
 import { useAuth } from "../../contexts/AuthContext";
 import { useLanguage } from "../../contexts/LanguageContext";
 import {
-  addTask,
-  deleteTask,
-  getTasks,
-  updateTask,
-} from "../../services/taskService";
+  createAppStateListener,
+  filterUpcomingTasks,
+  handleAddTask,
+  handleDeleteTask,
+  handleToggleComplete,
+} from "../../functions/utils/TaskUtils";
+import { getTasks } from "../../services/taskService";
 
 dayjs.extend(isBetween);
 
@@ -45,26 +45,7 @@ export default function UpcomingScreen() {
         throw new Error(error.message);
       }
 
-      if (!data) {
-        setTasks([]);
-        return;
-      }
-
-      const today = dayjs().endOf("day");
-      const upcomingTasks = data.filter((task) => {
-        if (!task.due_date) return false;
-
-        const taskDate = dayjs(task.due_date);
-        return taskDate.isAfter(today);
-      });
-
-      upcomingTasks.sort((a, b) => {
-        if (!a.due_date) return 1;
-        if (!b.due_date) return -1;
-        return dayjs(a.due_date).isBefore(dayjs(b.due_date)) ? -1 : 1;
-      });
-
-      setTasks(upcomingTasks);
+      setTasks(data ? filterUpcomingTasks(data) : []);
     } catch (err) {
       console.error("Error in fetchUpcomingTasks:", err);
       setError(err instanceof Error ? err.message : t("failedFetchTasks"));
@@ -88,85 +69,48 @@ export default function UpcomingScreen() {
   );
 
   useEffect(() => {
-    const subscription = AppState.addEventListener(
-      "change",
-      (nextAppState: AppStateStatus) => {
-        if (nextAppState === "active") {
-          fetchUpcomingTasks();
-        }
-      }
-    );
-
+    const subscription = createAppStateListener(fetchUpcomingTasks);
     return () => {
       subscription.remove();
     };
   }, [fetchUpcomingTasks]);
 
-  const handleAddTask = async (
+  const addTaskHandler = (
     title: string,
     description?: string,
     dueDate?: Date
   ) => {
-    try {
-      const taskDueDate = dueDate || dayjs().add(1, "day").toDate();
-
-      const newTask = {
-        title,
-        description,
-        is_completed: false,
-        user_id: user?.id || "",
-        due_date: taskDueDate.toISOString(),
-      };
-
-      const { data, error } = await addTask(newTask);
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      fetchUpcomingTasks();
-      setIsTaskFormVisible(false);
-    } catch (err) {
-      console.error("Error adding task:", err);
-      setError(err instanceof Error ? err.message : t("failedAddTask"));
-    }
+    return handleAddTask(
+      title,
+      description,
+      dueDate,
+      user?.id || "",
+      dayjs().add(1, "day").toDate(),
+      fetchUpcomingTasks,
+      (message) => setError(message),
+      t,
+      () => setIsTaskFormVisible(false)
+    );
   };
 
-  const handleToggleComplete = async (id: string) => {
-    try {
-      const task = tasks.find((t) => t.id === id);
-      if (!task) return;
-
-      const { error } = await updateTask(id, {
-        is_completed: !task.is_completed,
-      });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      setTasks(
-        tasks.map((t) =>
-          t.id === id ? { ...t, is_completed: !t.is_completed } : t
-        )
-      );
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("failedUpdateTask"));
-    }
+  const toggleCompleteHandler = (id: string) => {
+    return handleToggleComplete(
+      id,
+      tasks,
+      setTasks,
+      (message) => setError(message),
+      t
+    );
   };
 
-  const handleDeleteTask = async (id: string) => {
-    try {
-      const { error } = await deleteTask(id);
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      setTasks(tasks.filter((task) => task.id !== id));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("failedDeleteTask"));
-    }
+  const deleteTaskHandler = (id: string) => {
+    return handleDeleteTask(
+      id,
+      tasks,
+      setTasks,
+      (message) => setError(message),
+      t
+    );
   };
 
   return (
@@ -199,8 +143,8 @@ export default function UpcomingScreen() {
       ) : (
         <TaskList
           tasks={tasks}
-          onToggleComplete={handleToggleComplete}
-          onDeleteTask={handleDeleteTask}
+          onToggleComplete={toggleCompleteHandler}
+          onDeleteTask={deleteTaskHandler}
           groupByDay={true}
         />
       )}
@@ -208,7 +152,7 @@ export default function UpcomingScreen() {
       <TaskForm
         visible={isTaskFormVisible}
         onClose={() => setIsTaskFormVisible(false)}
-        onAddTask={handleAddTask}
+        onAddTask={addTaskHandler}
       />
 
       <TouchableOpacity

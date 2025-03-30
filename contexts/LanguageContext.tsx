@@ -19,6 +19,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
 }) => {
   const [locale, setLocale] = useState<string>(i18n.locale || "en");
 
+  // translation function that uses i18n to translate
   const translate = useCallback(
     (key: string, params?: Record<string, any>) => {
       return i18n.t(key, params || {});
@@ -26,6 +27,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
     [locale]
   );
 
+  // initialize the language settings
   useEffect(() => {
     const initialize = async () => {
       await initLanguage();
@@ -41,6 +43,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
     initialize();
   }, []);
 
+  // handle language change and update the context
   const handleChangeLanguage = useCallback(
     async (newLocale: string): Promise<void> => {
       try {
