@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export interface Task {
   id: string;
   title: string;
@@ -46,12 +48,44 @@ export interface AuthContextType {
 export interface LanguageContextType {
   locale: string;
   changeLanguage: (newLocale: string) => Promise<void>;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, any>) => string;
 }
 
 export interface LanguageSelectorProps {
   visible: boolean;
   onClose: () => void;
+}
+
+export interface LanguageProviderProps {
+  children: ReactNode;
+}
+
+export interface EmptyStateProps {
+  message: string;
+  subMessage?: string;
+}
+
+export interface TaskFormProps {
+  visible: boolean;
+  onClose: () => void;
+  onAddTask: (
+    title: string,
+    description?: string,
+    dueDate?: Date
+  ) => Promise<void>;
+}
+
+export interface TaskItemProps {
+  task: Task;
+  onToggleComplete: () => void;
+  onDelete: () => void;
+}
+
+export interface TaskListProps {
+  tasks: Task[];
+  onToggleComplete: (id: string) => void;
+  onDeleteTask: (id: string) => void;
+  groupByDay?: boolean;
 }
 
 export default {};

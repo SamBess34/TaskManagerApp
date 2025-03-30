@@ -1,10 +1,6 @@
 import React from "react";
 import { Image, Text, View } from "react-native";
-
-interface EmptyStateProps {
-  message: string;
-  subMessage?: string;
-}
+import { EmptyStateProps } from "../../app/types";
 
 const EmptyState: React.FC<EmptyStateProps> = ({ message, subMessage }) => {
   return (

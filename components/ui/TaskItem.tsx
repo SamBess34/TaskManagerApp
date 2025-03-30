@@ -5,16 +5,10 @@ import "dayjs/locale/fr";
 import LocalizedFormat from "dayjs/plugin/localizedFormat";
 import React, { useEffect } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import { Task } from "../../app/types";
+import { TaskItemProps } from "../../app/types";
 import { useLanguage } from "../../contexts/LanguageContext";
 
 dayjs.extend(LocalizedFormat);
-
-interface TaskItemProps {
-  task: Task;
-  onToggleComplete: () => void;
-  onDelete: () => void;
-}
 
 export default function TaskItem({
   task,

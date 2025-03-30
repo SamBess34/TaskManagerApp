@@ -13,17 +13,8 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { TaskFormProps } from "../../app/types";
 import { useLanguage } from "../../contexts/LanguageContext";
-
-interface TaskFormProps {
-  visible: boolean;
-  onClose: () => void;
-  onAddTask: (
-    title: string,
-    description?: string,
-    dueDate?: Date
-  ) => Promise<void>;
-}
 
 export default function TaskForm({
   visible,

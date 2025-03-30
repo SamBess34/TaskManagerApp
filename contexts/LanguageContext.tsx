@@ -1,28 +1,18 @@
 import React, {
   createContext,
-  ReactNode,
   useCallback,
   useContext,
   useEffect,
   useState,
 } from "react";
+import { LanguageContextType, LanguageProviderProps } from "../app/types";
 import i18n, { changeLanguage, initLanguage } from "../i18n";
-
-interface LanguageContextType {
-  locale: string;
-  changeLanguage: (newLocale: string) => Promise<void>;
-  t: (key: string, params?: Record<string, any>) => string;
-}
 
 const LanguageContext = createContext<LanguageContextType>({
   locale: "en",
   changeLanguage: async () => {},
   t: (key) => key,
 });
-
-interface LanguageProviderProps {
-  children: ReactNode;
-}
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({
   children,
@@ -39,6 +29,12 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
   useEffect(() => {
     const initialize = async () => {
       await initLanguage();
+
+      // force en by default
+      if (i18n.locale !== "en") {
+        await changeLanguage("en");
+      }
+
       setLocale(i18n.locale);
     };
 
@@ -49,7 +45,6 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
     async (newLocale: string): Promise<void> => {
       try {
         await changeLanguage(newLocale);
-
         setLocale(newLocale);
       } catch (error) {
         console.error("Failed to change language:", error);

@@ -5,19 +5,12 @@ import AdvancedFormat from "dayjs/plugin/advancedFormat";
 import LocalizedFormat from "dayjs/plugin/localizedFormat";
 import React, { useEffect } from "react";
 import { FlatList, Image, SectionList, Text, View } from "react-native";
-import { Task } from "../../app/types";
+import { Task, TaskListProps } from "../../app/types";
 import { useLanguage } from "../../contexts/LanguageContext";
 import TaskItem from "./TaskItem";
 
 dayjs.extend(LocalizedFormat);
 dayjs.extend(AdvancedFormat);
-
-interface TaskListProps {
-  tasks: Task[];
-  onToggleComplete: (id: string) => void;
-  onDeleteTask: (id: string) => void;
-  groupByDay?: boolean;
-}
 
 export default function TaskList({
   tasks,
