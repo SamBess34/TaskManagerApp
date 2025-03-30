@@ -102,7 +102,7 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=votre_cle_anonyme_supabase
 
 #### Gestion des tâches :
 
-- Marquez une tâche comme **terminée** en appuyant sur le cercle ✅
+- Marquez une tâche comme **terminée** en appuyant sur le cercle
 - Supprimez une tâche en appuyant sur l'icône de corbeille 🗑️
 
 #### Changement de langue :
@@ -110,28 +110,6 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=votre_cle_anonyme_supabase
 - Accédez au **menu (⋮)** en haut à droite
 - Sélectionnez **"Langue" / "Language"**
 - Choisissez entre **français et anglais**
-
----
-
-## 🛠 Dépannage
-
-### 🔧 Problèmes de connexion à Supabase :
-
-- Vérifiez que vos **clés d'API** sont correctement configurées dans le fichier `.env`
-- Assurez-vous que **l'authentification par email** est activée dans votre projet Supabase
-
-### 📱 Problèmes d'affichage :
-
-- Si **NativeWind** ne fonctionne pas correctement, essayez de redémarrer le serveur Expo avec `--clear`
-
-```bash
- npx expo start --clear
-```
-
-### ❌ Erreurs lors de l'exécution :
-
-- Vérifiez que vous utilisez les **versions compatibles** de Node.js et Expo
-- Consultez les **journaux d'erreur** dans le terminal ou la console de développement
 
 ---
 

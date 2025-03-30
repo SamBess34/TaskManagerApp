@@ -64,7 +64,7 @@ export default function TabsLayout() {
               setShowMenu(false);
             }}
           >
-            <Ionicons name="globe-outline" size={24} color="#333" />
+            <Ionicons name="globe-outline" size={24} color="#dc4d3d" />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -106,7 +106,7 @@ export default function TabsLayout() {
           name="index"
           options={{
             title: t("todayTab"),
-            tabBarIcon: ({ color, focused }) => (
+            tabBarIcon: ({ focused }) => (
               <View className="items-center justify-center">
                 <View
                   className={`items-center justify-center rounded-full w-6 h-6 ${
