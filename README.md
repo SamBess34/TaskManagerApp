@@ -1,50 +1,138 @@
-# Welcome to your Expo app 👋
+# TaskManagerApp
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Application de gestion de tâches avec synchronisation backend
 
-## Get started
+TaskManagerApp est une application mobile qui vous permet de gérer vos tâches quotidiennes et à venir avec une interface élégante et intuitive, disponible en français et en anglais.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## 📥 Comment installer l'application
 
-2. Start the app
+### Prérequis
 
-   ```bash
-    npx expo start
-   ```
+- Node.js (v16 ou supérieur)
+- npm
+- Expo CLI (`npm install -g expo-cli`)
+- Un compte Supabase (gratuit)
 
-In the output, you'll find options to open the app in a
+### Étapes d'installation
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+1. **Cloner le dépôt**
 
 ```bash
-npm run reset-project
+ git clone git@github.com:SamBess34/TaskManagerApp.git
+ cd TaskManagerApp
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. **Installer les dépendances**
 
-## Learn more
+```bash
+ npm install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+3. **Configurer Supabase**
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- Créez un nouveau projet sur Supabase
+- Dans l'éditeur SQL de votre projet, exécutez le script suivant :
 
-## Join the community
+```sql
+CREATE TABLE public.tasks (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  description TEXT,
+  is_completed BOOLEAN DEFAULT FALSE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  due_date TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
 
-Join our community of developers creating universal apps.
+-- Enable RLS (Row Level Security)
+ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+-- Create policy for secure access
+CREATE POLICY "Users can CRUD their own tasks" ON tasks
+  FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+```
+
+- Activez l'authentification par email dans les paramètres `Authentication > Providers`
+
+4. **Configurer les variables d'environnement**
+
+- Créez un fichier `.env` à la racine du projet :
+
+```env
+EXPO_PUBLIC_SUPABASE_URL=votre_url_supabase
+EXPO_PUBLIC_SUPABASE_ANON_KEY=votre_cle_anonyme_supabase
+```
+
+- Remplacez les valeurs par celles disponibles dans votre projet Supabase (`Settings > API`)
+
+5. **Lancer l'application**
+
+```bash
+ npx expo start
+```
+
+- Scannez le QR code avec l'application Expo Go sur votre smartphone
+- Ou appuyez sur `i` ou `a` dans le terminal pour ouvrir un émulateur iOS ou Android
+
+---
+
+## 📌 Comment utiliser l'application
+
+### Première utilisation
+
+- **Inscription** : Créez un compte avec votre email et un mot de passe
+- **Connexion** : Connectez-vous avec vos identifiants
+
+### Fonctionnalités principales
+
+✅ **Écran Today** : Affiche les tâches du jour  
+📆 **Écran Upcoming** : Affiche les tâches à venir, organisées par date  
+➕ **Ajout de tâche** : Appuyez sur le bouton `+` pour ajouter une nouvelle tâche
+
+#### Formulaire de tâche :
+
+- Ajoutez un **titre** (obligatoire)
+- Ajoutez une **description** (optionnel)
+- Définissez une **date et une heure d'échéance**
+
+#### Gestion des tâches :
+
+- Marquez une tâche comme **terminée** en appuyant sur le cercle ✅
+- Supprimez une tâche en appuyant sur l'icône de corbeille 🗑️
+
+#### Changement de langue :
+
+- Accédez au **menu (⋮)** en haut à droite
+- Sélectionnez **"Langue" / "Language"**
+- Choisissez entre **français et anglais**
+
+---
+
+## 🛠 Dépannage
+
+### 🔧 Problèmes de connexion à Supabase :
+
+- Vérifiez que vos **clés d'API** sont correctement configurées dans le fichier `.env`
+- Assurez-vous que **l'authentification par email** est activée dans votre projet Supabase
+
+### 📱 Problèmes d'affichage :
+
+- Si **NativeWind** ne fonctionne pas correctement, essayez de redémarrer le serveur Expo avec `--clear`
+
+```bash
+ npx expo start --clear
+```
+
+### ❌ Erreurs lors de l'exécution :
+
+- Vérifiez que vous utilisez les **versions compatibles** de Node.js et Expo
+- Consultez les **journaux d'erreur** dans le terminal ou la console de développement
+
+---
+
+Développé avec en **React Native, Expo et Supabase**.
