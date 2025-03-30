@@ -26,9 +26,9 @@ export default function TaskItem({
 
     try {
       const startTime = dayjs(task.due_date);
-      //const endTime = startTime.add(90, "minute");
-      // return `${startTime.format("HH:mm")}-${endTime.format("HH:mm")}`;
-      return `${startTime.format("HH:mm")}`;
+      // used format with language settings to display the time in the correct format
+      const timeFormat = locale === "fr" ? "HH:mm" : "h:mm A";
+      return startTime.format(timeFormat);
     } catch (error) {
       console.error("Error formatting time range:", error);
       return null;
