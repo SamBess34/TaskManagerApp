@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
-import { Tabs } from "expo-router";
+import { router, Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -25,6 +25,7 @@ export default function TabsLayout() {
   const handleLogout = async () => {
     try {
       await signOut();
+      router.replace("/(auth)/login");
     } catch (err) {
       console.error("Erreur lors de la déconnexion:", err);
     } finally {
@@ -46,34 +47,31 @@ export default function TabsLayout() {
       </TouchableOpacity>
 
       {showMenu && (
-        <View className="absolute top-10 right-4 bg-white rounded-lg p-2 shadow-md z-50">
+        <View
+          className="absolute top-10 right-4 bg-white rounded-lg p-2 z-50 elevation-5"
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
+          }}
+        >
           <TouchableOpacity
-            className="flex-row items-center p-2"
+            className="flex-row items-center justify-center p-2"
             onPress={() => {
               setShowLanguageSelector(true);
               setShowMenu(false);
             }}
           >
-            <Ionicons
-              name="language-outline"
-              size={20}
-              color="#333"
-              className="mr-2"
-            />
-            <Text className="text-gray-800">{t("language")}</Text>
+            <Ionicons name="globe-outline" size={24} color="#333" />
           </TouchableOpacity>
 
           <TouchableOpacity
-            className="flex-row items-center p-2"
+            className="flex-row items-center justify-center p-2 mt-1"
             onPress={handleLogout}
           >
-            <Ionicons
-              name="log-out-outline"
-              size={20}
-              color="#dc4d3d"
-              className="mr-2"
-            />
-            <Text className="text-red-600">{t("logoutButton")}</Text>
+            <Ionicons name="log-out-outline" size={24} color="#dc4d3d" />
           </TouchableOpacity>
         </View>
       )}
